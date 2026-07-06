@@ -20,7 +20,7 @@ let currentUser = { id: null, username: null, firstName: null, balance: 0, level
 //const API_URL = 'https://bloodnexus-api.onrender.com/api';  // ← ЗМІНІТЬ ЦЕ!
 
 // Для ngrok:
- const API_URL = 'https://abc123.ngrok.io/api'; // ← АБО ЦЕ!
+ const API_URL = 'https://quartet-footprint-dandruff.ngrok-free.dev'; // ← АБО ЦЕ!
 
 // ============================================
 // ЗАВАНТАЖЕННЯ ДАНИХ КОРИСТУВАЧА
