@@ -17,10 +17,10 @@ let currentUser = { id: null, username: null, firstName: null, balance: 0, level
 // const API_URL = 'http://localhost:5000/api';
 
 // Для продакшну (Render):
-const API_URL = 'https://bloodnexus-api.onrender.com/api';  // ← ЗМІНІТЬ ЦЕ!
+//const API_URL = 'https://bloodnexus-api.onrender.com/api';  // ← ЗМІНІТЬ ЦЕ!
 
 // Для ngrok:
-// const API_URL = 'https://abc123.ngrok.io/api';  // ← АБО ЦЕ!
+ const API_URL = 'https://abc123.ngrok.io/api'; // ← АБО ЦЕ!
 
 // ============================================
 // ЗАВАНТАЖЕННЯ ДАНИХ КОРИСТУВАЧА
