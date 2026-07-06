@@ -1,13 +1,39 @@
 // ============================================
 // TELEGRAM WEB APP ІНІЦІАЛІЗАЦІЯ
 // ============================================
-const tg = window.Telegram.WebApp;
-tg.expand();
+// Перевіряємо, чи доступний Telegram WebApp
+let tg = null;
+let user = null;
+
+try {
+    if (window.Telegram && window.Telegram.WebApp) {
+        tg = window.Telegram.WebApp;
+        tg.expand();
+        user = tg.initDataUnsafe.user;
+        console.log('✅ Telegram WebApp успішно завантажено');
+    } else {
+        console.warn('⚠️ Telegram WebApp не доступний. Використовуємо тестові дані.');
+        // Тестові дані для браузера
+        user = {
+            id: 435968860,
+            first_name: 'tdev.exe',
+            username: 'tdev_exe',
+            language_code: 'uk'
+        };
+    }
+} catch (e) {
+    console.error('❌ Помилка ініціалізації Telegram:', e);
+    user = {
+        id: 435968860,
+        first_name: 'tdev.exe',
+        username: 'tdev_exe',
+        language_code: 'uk'
+    };
+}
 
 // ============================================
-// ДАНІ КОРИСТУВАЧА З TELEGRAM
+// ДАНІ КОРИСТУВАЧА
 // ============================================
-const user = tg.initDataUnsafe.user;
 let currentUser = { id: null, username: null, firstName: null, balance: 0, level: 1, skins: 0 };
 
 // ============================================
@@ -55,15 +81,26 @@ function registerUser() {
             username: user.username || '',
             first_name: user.first_name || ''
         })
-    }).catch(err => console.error('❌ Помилка реєстрації:', err));
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('✅ Користувача зареєстровано:', data);
+    })
+    .catch(err => console.error('❌ Помилка реєстрації:', err));
 }
 
 function loadUserStats() {
     if (!user) return;
     
+    console.log(`📡 Запит до API: ${API_URL}/user?telegram_id=${user.id}`);
+    
     fetch(`${API_URL}/user?telegram_id=${user.id}`)
-        .then(r => r.json())
+        .then(r => {
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return r.json();
+        })
         .then(data => {
+            console.log('📊 Отримано дані користувача:', data);
             if (!data.error) {
                 currentUser.balance = data.balance || 0;
                 currentUser.level = data.level || 1;
@@ -72,7 +109,12 @@ function loadUserStats() {
                 updateProfilePage();
             }
         })
-        .catch(err => console.error('❌ Помилка завантаження даних:', err));
+        .catch(err => {
+            console.error('❌ Помилка завантаження даних:', err);
+            // Показуємо демо-дані при помилці
+            document.getElementById('userBalance').textContent = `🪙 100`;
+            document.getElementById('userLevel').textContent = `⭐ 1`;
+        });
     
     fetch(`${API_URL}/inventory?user_id=${user.id}`)
         .then(r => r.json())
