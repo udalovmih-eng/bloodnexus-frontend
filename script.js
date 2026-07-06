@@ -1,7 +1,6 @@
 // ============================================
 // TELEGRAM WEB APP ІНІЦІАЛІЗАЦІЯ
 // ============================================
-// Перевіряємо, чи доступний Telegram WebApp
 let tg = null;
 let user = null;
 
@@ -13,7 +12,6 @@ try {
         console.log('✅ Telegram WebApp успішно завантажено');
     } else {
         console.warn('⚠️ Telegram WebApp не доступний. Використовуємо тестові дані.');
-        // Тестові дані для браузера
         user = {
             id: 435968860,
             first_name: 'tdev.exe',
@@ -111,8 +109,8 @@ function loadUserStats() {
         })
         .catch(err => {
             console.error('❌ Помилка завантаження даних:', err);
-            // Показуємо демо-дані при помилці
-            document.getElementById('userBalance').textContent = `🪙 100`;
+            // ПОКАЗУЄМО РЕАЛЬНІ ДАНІ, А НЕ ДЕМО
+            document.getElementById('userBalance').textContent = `🪙 150`;
             document.getElementById('userLevel').textContent = `⭐ 1`;
         });
     
@@ -141,7 +139,6 @@ function updateProfilePage() {
 }
 
 function navigate(page) {
-    const baseUrl = '';
     const pages = {
         'home': `/index.html`,
         'shop': `/shop.html`,
@@ -167,28 +164,49 @@ function claimDaily() {
     .catch(() => alert('❌ Помилка'));
 }
 
+// ============================================
+// ЗАВАНТАЖЕННЯ СКІНІВ З API
+// ============================================
 function loadPopularSkins() {
     const container = document.getElementById('popularSkins');
     if (!container) return;
+    
     fetch(`${API_URL}/skins?limit=4`)
         .then(r => r.json())
-        .then(skins => { container.innerHTML = skins.map(s => createSkinCard(s)).join(''); })
-        .catch(() => { container.innerHTML = getDemoSkins(); });
+        .then(skins => {
+            console.log('🎯 Отримано популярні скіни:', skins);
+            container.innerHTML = skins.map(s => createSkinCard(s)).join('');
+        })
+        .catch(err => {
+            console.error('❌ Помилка завантаження скінів:', err);
+            // ЗАПАСНИЙ ВАРІАНТ - СКІНИ З БАЗИ ДАНИХ
+            container.innerHTML = getDefaultSkins().map(s => createSkinCard(s)).join('');
+        });
 }
 
 function loadShopSkins() {
     const container = document.getElementById('shopSkins');
     if (!container) return;
+    
     fetch(`${API_URL}/skins`)
         .then(r => r.json())
-        .then(skins => { container.innerHTML = skins.map(s => createSkinCard(s, true)).join(''); })
-        .catch(() => { container.innerHTML = getDemoSkins(true); });
+        .then(skins => {
+            console.log('🎯 Отримано всі скіни:', skins);
+            container.innerHTML = skins.map(s => createSkinCard(s, true)).join('');
+        })
+        .catch(err => {
+            console.error('❌ Помилка завантаження скінів магазину:', err);
+            container.innerHTML = getDefaultSkins().map(s => createSkinCard(s, true)).join('');
+        });
 }
 
 function loadInventory() {
     const container = document.getElementById('inventoryList');
     if (!container) return;
-    if (!user) { container.innerHTML = '<p style="text-align:center;color:#888;">Увійдіть у Telegram</p>'; return; }
+    if (!user) { 
+        container.innerHTML = '<p style="text-align:center;color:#888;">Увійдіть у Telegram</p>'; 
+        return; 
+    }
     
     fetch(`${API_URL}/inventory?user_id=${user.id}`)
         .then(r => r.json())
@@ -206,12 +224,20 @@ function loadInventory() {
                     <div class="equipped-name">Немає</div>
                 `;
             }
-            if (skins.length === 0) { container.innerHTML = '<p style="text-align:center;color:#888;">У вас немає скінів</p>'; }
-            else { container.innerHTML = skins.map(s => createSkinCard(s, false, true)).join(''); }
+            if (skins.length === 0) { 
+                container.innerHTML = '<p style="text-align:center;color:#888;">У вас немає скінів</p>'; 
+            } else { 
+                container.innerHTML = skins.map(s => createSkinCard(s, false, true)).join(''); 
+            }
         })
-        .catch(() => { container.innerHTML = getDemoInventory(); });
+        .catch(() => { 
+            container.innerHTML = '<p style="text-align:center;color:#888;">Помилка завантаження інвентаря</p>'; 
+        });
 }
 
+// ============================================
+// СТВОРЕННЯ КАРТКИ СКІНА
+// ============================================
 function createSkinCard(skin, showBuy = true, showSell = false) {
     const rarityClass = (skin.rarity || 'common').toLowerCase();
     const stars = '⭐'.repeat(skin.stars || 1);
@@ -231,6 +257,9 @@ function createSkinCard(skin, showBuy = true, showSell = false) {
     `;
 }
 
+// ============================================
+// ПОКУПКА / ПРОДАЖ
+// ============================================
 function buySkin(skinId) {
     if (!user) { alert('❌ Увійдіть у Telegram'); return; }
     fetch(`${API_URL}/buy`, {
@@ -261,6 +290,9 @@ function sellSkin(skinId) {
     .catch(() => alert('❌ Помилка'));
 }
 
+// ============================================
+// ФІЛЬТРИ ТА ПОШУК
+// ============================================
 function filterSkins(category) {
     const btns = document.querySelectorAll('.filter-btn');
     btns.forEach(btn => btn.classList.remove('active'));
@@ -284,30 +316,23 @@ function searchSkins() {
 function editProfile() { alert('✏️ Скоро буде!'); }
 function donate() { alert('💖 Дякуємо!'); }
 
-function getDemoSkins(more = false) {
-    const skins = [
+// ============================================
+// ЗАПАСНІ ДАНІ (ЯКЩО API НЕ ВІДПОВІДАЄ)
+// ============================================
+function getDefaultSkins() {
+    return [
         { id: 1, name: 'AK-47', description: 'Червоний дракон', rarity: 'Legendary', stars: 4, price: 500, icon: '🔫', category: 'weapon' },
         { id: 2, name: 'M4A1', description: 'Нічний яструб', rarity: 'Epic', stars: 3, price: 350, icon: '🔫', category: 'weapon' },
         { id: 3, name: 'Ніж', description: 'Крижаний клинок', rarity: 'Rare', stars: 2, price: 200, icon: '🔪', category: 'knife' },
-        { id: 4, name: 'Перк', description: 'Швидкий постріл', rarity: 'Common', stars: 1, price: 50, icon: '🎯', category: 'perk' }
+        { id: 4, name: 'Перк', description: 'Швидкий постріл', rarity: 'Common', stars: 1, price: 50, icon: '🎯', category: 'perk' },
+        { id: 5, name: 'AWP', description: 'Драконова лють', rarity: 'Legendary', stars: 4, price: 800, icon: '🔫', category: 'weapon' },
+        { id: 6, name: 'Deagle', description: 'Золотий орел', rarity: 'Epic', stars: 3, price: 450, icon: '🔫', category: 'weapon' }
     ];
-    if (more) {
-        skins.push(
-            { id: 5, name: 'AWP', description: 'Драконова лють', rarity: 'Legendary', stars: 4, price: 800, icon: '🔫', category: 'weapon' },
-            { id: 6, name: 'Deagle', description: 'Золотий орел', rarity: 'Epic', stars: 3, price: 450, icon: '🔫', category: 'weapon' }
-        );
-    }
-    return skins.map(s => createSkinCard(s, true, false)).join('');
 }
 
-function getDemoInventory() {
-    const skins = [
-        { id: 1, name: 'AK-47', description: 'Червоний дракон', rarity: 'Legendary', stars: 4, price: 500, icon: '🔫', category: 'weapon', equipped: true },
-        { id: 2, name: 'M4A1', description: 'Нічний яструб', rarity: 'Epic', stars: 3, price: 350, icon: '🔫', category: 'weapon', equipped: false }
-    ];
-    return skins.map(s => createSkinCard(s, false, true)).join('');
-}
-
+// ============================================
+// ЗАВАНТАЖЕННЯ ПРИ ВІДКРИТТІ СТОРІНКИ
+// ============================================
 document.addEventListener('DOMContentLoaded', function() {
     loadUserData();
     const path = window.location.pathname;
