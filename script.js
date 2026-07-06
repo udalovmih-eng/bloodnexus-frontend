@@ -40,40 +40,67 @@ let currentUser = { id: null, username: null, firstName: null, balance: 0, level
 const API_URL = 'https://quartet-footprint-dandruff.ngrok-free.dev/api';
 
 // ============================================
+// ЗАГОЛОВОК ДЛЯ ОБХОДУ ПОПЕРЕДЖЕННЯ NGROK
+// ============================================
+function getHeaders() {
+    return {
+        'ngrok-skip-browser-warning': 'true',
+        'Content-Type': 'application/json'
+    };
+}
+
+// ============================================
 // ЗАВАНТАЖЕННЯ ДАНИХ КОРИСТУВАЧА
 // ============================================
 function loadUserData() {
+    console.log('📌 loadUserData() викликано');
+    console.log('👤 user:', user);
+    
     if (user) {
         currentUser.id = user.id;
         currentUser.username = user.username || 'user';
         currentUser.firstName = user.first_name || 'Користувач';
         
-        document.getElementById('userName').textContent = currentUser.firstName;
-        document.getElementById('userTag').textContent = '@' + currentUser.username;
+        // Оновлюємо ім'я та юзернейм на всіх сторінках
+        document.querySelectorAll('.username').forEach(el => {
+            el.textContent = currentUser.firstName;
+        });
+        document.querySelectorAll('.user-tag').forEach(el => {
+            el.textContent = '@' + currentUser.username;
+        });
         
-        const avatar = document.getElementById('userAvatar');
-        avatar.textContent = currentUser.firstName.charAt(0).toUpperCase();
-        avatar.style.background = '#e74c3c';
-        avatar.style.color = '#fff';
-        avatar.style.display = 'flex';
-        avatar.style.alignItems = 'center';
-        avatar.style.justifyContent = 'center';
-        avatar.style.fontSize = '24px';
-        avatar.style.fontWeight = 'bold';
+        // Оновлюємо аватар
+        document.querySelectorAll('.avatar').forEach(el => {
+            const avatar = el;
+            avatar.textContent = currentUser.firstName.charAt(0).toUpperCase();
+            avatar.style.background = '#e74c3c';
+            avatar.style.color = '#fff';
+            avatar.style.display = 'flex';
+            avatar.style.alignItems = 'center';
+            avatar.style.justifyContent = 'center';
+            avatar.style.fontSize = '24px';
+            avatar.style.fontWeight = 'bold';
+        });
         
         registerUser();
         loadUserStats();
     } else {
-        document.getElementById('userName').textContent = 'Гість';
-        document.getElementById('userTag').textContent = 'Увійдіть у Telegram';
+        document.querySelectorAll('.username').forEach(el => {
+            el.textContent = 'Гість';
+        });
+        document.querySelectorAll('.user-tag').forEach(el => {
+            el.textContent = 'Увійдіть у Telegram';
+        });
     }
 }
 
 function registerUser() {
     if (!user) return;
+    console.log('📌 registerUser() викликано');
+    
     fetch(`${API_URL}/register`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getHeaders(),
         body: JSON.stringify({
             telegram_id: user.id,
             username: user.username || '',
@@ -88,12 +115,17 @@ function registerUser() {
 }
 
 function loadUserStats() {
-    if (!user) return;
+    if (!user) {
+        console.error('❌ user не визначено');
+        return;
+    }
     
-    console.log(`📡 Запит до API: ${API_URL}/user?telegram_id=${user.id}`);
+    const url = `${API_URL}/user?telegram_id=${user.id}`;
+    console.log(`📡 Запит до API: ${url}`);
     
-    fetch(`${API_URL}/user?telegram_id=${user.id}`)
+    fetch(url, { headers: getHeaders() })
         .then(r => {
+            console.log(`📡 Відповідь API: статус ${r.status}`);
             if (!r.ok) throw new Error(`HTTP ${r.status}`);
             return r.json();
         })
@@ -102,39 +134,95 @@ function loadUserStats() {
             if (!data.error) {
                 currentUser.balance = data.balance || 0;
                 currentUser.level = data.level || 1;
-                document.getElementById('userBalance').textContent = `🪙 ${currentUser.balance}`;
-                document.getElementById('userLevel').textContent = `⭐ ${currentUser.level}`;
-                updateProfilePage();
+                currentUser.experience = data.experience || 0;
+                updateAllPages();
+            } else {
+                console.error('❌ Помилка в даних:', data.error);
             }
         })
         .catch(err => {
             console.error('❌ Помилка завантаження даних:', err);
-            // ПОКАЗУЄМО РЕАЛЬНІ ДАНІ, А НЕ ДЕМО
-            document.getElementById('userBalance').textContent = `🪙 150`;
-            document.getElementById('userLevel').textContent = `⭐ 1`;
+            // Показуємо демо-дані при помилці
+            currentUser.balance = 150;
+            currentUser.level = 1;
+            updateAllPages();
         });
     
-    fetch(`${API_URL}/inventory?user_id=${user.id}`)
+    fetch(`${API_URL}/inventory?user_id=${user.id}`, { headers: getHeaders() })
         .then(r => r.json())
         .then(data => {
             if (!data.error) {
                 currentUser.skins = data.length || 0;
-                document.getElementById('skinCount').textContent = currentUser.skins;
+                updateAllPages();
             }
         })
         .catch(err => console.error('❌ Помилка завантаження інвентаря:', err));
 }
 
+// ============================================
+// ОНОВЛЕННЯ ВСІХ СТОРІНОК
+// ============================================
+function updateAllPages() {
+    console.log('📌 updateAllPages() викликано, currentUser:', currentUser);
+    
+    // Оновлюємо баланс
+    document.querySelectorAll('.balance').forEach(el => {
+        if (el.id === 'shopBalance' || el.id === 'userBalance') {
+            el.textContent = `🪙 ${currentUser.balance || 0}`;
+        }
+    });
+    
+    // Оновлюємо рівень
+    document.querySelectorAll('.stat-value').forEach(el => {
+        if (el.id === 'userLevel' || el.id === 'profileLevel') {
+            el.textContent = `⭐ ${currentUser.level || 1}`;
+        }
+    });
+    
+    // Оновлюємо профільну сторінку
+    updateProfilePage();
+}
+
 function updateProfilePage() {
+    console.log('📌 updateProfilePage() викликано');
+    
     if (document.getElementById('profileName')) {
         document.getElementById('profileName').textContent = currentUser.firstName || 'Користувач';
+    }
+    if (document.getElementById('profileTag')) {
         document.getElementById('profileTag').textContent = '@' + (currentUser.username || 'user');
+    }
+    if (document.getElementById('profileBalance')) {
         document.getElementById('profileBalance').textContent = currentUser.balance || 0;
+    }
+    if (document.getElementById('profileLevel')) {
         document.getElementById('profileLevel').textContent = currentUser.level || 1;
+    }
+    if (document.getElementById('profileSkins')) {
         document.getElementById('profileSkins').textContent = currentUser.skins || 0;
     }
-    if (document.getElementById('shopBalance')) {
-        document.getElementById('shopBalance').textContent = `🪙 ${currentUser.balance || 0}`;
+    if (document.getElementById('profileWarns')) {
+        document.getElementById('profileWarns').textContent = 0;
+    }
+    
+    // XP бар
+    const xp = currentUser.experience || 0;
+    const maxXp = (currentUser.level || 1) * 1000;
+    const percent = Math.min((xp / maxXp) * 100, 100);
+    
+    if (document.getElementById('xpCurrent')) {
+        document.getElementById('xpCurrent').textContent = xp;
+    }
+    if (document.getElementById('xpMax')) {
+        document.getElementById('xpMax').textContent = maxXp;
+    }
+    if (document.getElementById('xpFill')) {
+        document.getElementById('xpFill').style.width = percent + '%';
+    }
+    
+    // Кількість скінів на головній
+    if (document.getElementById('skinCount')) {
+        document.getElementById('skinCount').textContent = currentUser.skins || 0;
     }
 }
 
@@ -153,25 +241,31 @@ function claimDaily() {
     if (!user) { alert('❌ Увійдіть у Telegram'); return; }
     fetch(`${API_URL}/daily`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getHeaders(),
         body: JSON.stringify({ telegram_id: user.id })
     })
     .then(r => r.json())
     .then(data => {
-        if (data.success) { alert('✅ ' + data.message); location.reload(); }
-        else { alert('❌ ' + data.message); }
+        if (data.success) { 
+            alert('✅ ' + data.message); 
+            location.reload(); 
+        } else { 
+            alert('❌ ' + data.message); 
+        }
     })
     .catch(() => alert('❌ Помилка'));
 }
 
 // ============================================
-// ЗАВАНТАЖЕННЯ СКІНІВ З API
+// ЗАВАНТАЖЕННЯ СКІНІВ
 // ============================================
 function loadPopularSkins() {
     const container = document.getElementById('popularSkins');
     if (!container) return;
     
-    fetch(`${API_URL}/skins?limit=4`)
+    console.log('📡 Запит до API: /skins?limit=4');
+    
+    fetch(`${API_URL}/skins?limit=4`, { headers: getHeaders() })
         .then(r => r.json())
         .then(skins => {
             console.log('🎯 Отримано популярні скіни:', skins);
@@ -179,7 +273,6 @@ function loadPopularSkins() {
         })
         .catch(err => {
             console.error('❌ Помилка завантаження скінів:', err);
-            // ЗАПАСНИЙ ВАРІАНТ - СКІНИ З БАЗИ ДАНИХ
             container.innerHTML = getDefaultSkins().map(s => createSkinCard(s)).join('');
         });
 }
@@ -188,7 +281,9 @@ function loadShopSkins() {
     const container = document.getElementById('shopSkins');
     if (!container) return;
     
-    fetch(`${API_URL}/skins`)
+    console.log('📡 Запит до API: /skins');
+    
+    fetch(`${API_URL}/skins`, { headers: getHeaders() })
         .then(r => r.json())
         .then(skins => {
             console.log('🎯 Отримано всі скіни:', skins);
@@ -208,7 +303,9 @@ function loadInventory() {
         return; 
     }
     
-    fetch(`${API_URL}/inventory?user_id=${user.id}`)
+    console.log('📡 Запит до API: /inventory');
+    
+    fetch(`${API_URL}/inventory?user_id=${user.id}`, { headers: getHeaders() })
         .then(r => r.json())
         .then(skins => {
             document.getElementById('totalSkins').textContent = skins.length + ' скінів';
@@ -236,7 +333,7 @@ function loadInventory() {
 }
 
 // ============================================
-// СТВОРЕННЯ КАРТКИ СКІНА
+// КАРТКА СКІНА
 // ============================================
 function createSkinCard(skin, showBuy = true, showSell = false) {
     const rarityClass = (skin.rarity || 'common').toLowerCase();
@@ -264,7 +361,7 @@ function buySkin(skinId) {
     if (!user) { alert('❌ Увійдіть у Telegram'); return; }
     fetch(`${API_URL}/buy`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getHeaders(),
         body: JSON.stringify({ user_id: user.id, skin_id: skinId })
     })
     .then(r => r.json())
@@ -279,7 +376,7 @@ function sellSkin(skinId) {
     if (!confirm('Продати?')) return;
     fetch(`${API_URL}/sell`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getHeaders(),
         body: JSON.stringify({ user_id: user.id, skin_id: skinId })
     })
     .then(r => r.json())
@@ -291,7 +388,7 @@ function sellSkin(skinId) {
 }
 
 // ============================================
-// ФІЛЬТРИ ТА ПОШУК
+// ФІЛЬТРИ
 // ============================================
 function filterSkins(category) {
     const btns = document.querySelectorAll('.filter-btn');
@@ -331,14 +428,29 @@ function getDefaultSkins() {
 }
 
 // ============================================
-// ЗАВАНТАЖЕННЯ ПРИ ВІДКРИТТІ СТОРІНКИ
+// ГОЛОВНИЙ ЗАПУСК
 // ============================================
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('📌 DOM завантажено');
+    
+    // Завжди завантажуємо дані користувача
     loadUserData();
+    
     const path = window.location.pathname;
-    if (path.includes('shop.html')) { loadShopSkins(); }
-    else if (path.includes('inventory.html')) { loadInventory(); }
-    else { loadPopularSkins(); }
+    console.log('📌 Поточна сторінка:', path);
+    
+    if (path.includes('shop.html')) { 
+        loadShopSkins(); 
+    } else if (path.includes('inventory.html')) { 
+        loadInventory(); 
+    } else { 
+        // Головна або профіль
+        loadPopularSkins();
+        // Якщо це профіль, оновлюємо його
+        if (path.includes('profile.html')) {
+            setTimeout(updateProfilePage, 300);
+        }
+    }
 });
 
 console.log('✅ BloodNexus завантажено!');
