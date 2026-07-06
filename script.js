@@ -1,11 +1,30 @@
+// ============================================
+// TELEGRAM WEB APP ІНІЦІАЛІЗАЦІЯ
+// ============================================
 const tg = window.Telegram.WebApp;
 tg.expand();
 
+// ============================================
+// ДАНІ КОРИСТУВАЧА З TELEGRAM
+// ============================================
 const user = tg.initDataUnsafe.user;
 let currentUser = { id: null, username: null, firstName: null, balance: 0, level: 1, skins: 0 };
 
-const API_URL = 'https://bloodnexus-api.onrender.com/api';
+// ============================================
+// API URL - ЗМІНІТЬ НА ВАШ АКТУАЛЬНИЙ!
+// ============================================
+// Для локального тесту (тільки через localhost):
+// const API_URL = 'http://localhost:5000/api';
 
+// Для продакшну (Render):
+const API_URL = 'https://bloodnexus-api.onrender.com/api';  // ← ЗМІНІТЬ ЦЕ!
+
+// Для ngrok:
+// const API_URL = 'https://abc123.ngrok.io/api';  // ← АБО ЦЕ!
+
+// ============================================
+// ЗАВАНТАЖЕННЯ ДАНИХ КОРИСТУВАЧА
+// ============================================
 function loadUserData() {
     if (user) {
         currentUser.id = user.id;
@@ -43,7 +62,7 @@ function registerUser() {
             username: user.username || '',
             first_name: user.first_name || ''
         })
-    }).catch(err => console.error(err));
+    }).catch(err => console.error('❌ Помилка реєстрації:', err));
 }
 
 function loadUserStats() {
@@ -59,7 +78,8 @@ function loadUserStats() {
                 document.getElementById('userLevel').textContent = `⭐ ${currentUser.level}`;
                 updateProfilePage();
             }
-        }).catch(() => {});
+        })
+        .catch(err => console.error('❌ Помилка завантаження даних:', err));
     
     fetch(`${API_URL}/inventory?user_id=${user.id}`)
         .then(r => r.json())
@@ -68,7 +88,8 @@ function loadUserStats() {
                 currentUser.skins = data.length || 0;
                 document.getElementById('skinCount').textContent = currentUser.skins;
             }
-        }).catch(() => {});
+        })
+        .catch(err => console.error('❌ Помилка завантаження інвентаря:', err));
 }
 
 function updateProfilePage() {
@@ -261,3 +282,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 console.log('✅ BloodNexus завантажено!');
+console.log('📡 API URL:', API_URL);
+console.log('👤 Користувач:', user ? user.first_name : 'Гість');
