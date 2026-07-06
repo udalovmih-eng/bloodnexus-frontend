@@ -11,16 +11,9 @@ const user = tg.initDataUnsafe.user;
 let currentUser = { id: null, username: null, firstName: null, balance: 0, level: 1, skins: 0 };
 
 // ============================================
-// API URL - ЗМІНІТЬ НА ВАШ АКТУАЛЬНИЙ!
+// API URL - ВАШ NGROK URL
 // ============================================
-// Для локального тесту (тільки через localhost):
-// const API_URL = 'http://localhost:5000/api';
-
-// Для продакшну (Render):
-//const API_URL = 'https://bloodnexus-api.onrender.com/api';  // ← ЗМІНІТЬ ЦЕ!
-
-// Для ngrok:
- const API_URL = 'https://quartet-footprint-dandruff.ngrok-free.dev'; // ← АБО ЦЕ!
+const API_URL = 'https://quartet-footprint-dandruff.ngrok-free.dev/api';
 
 // ============================================
 // ЗАВАНТАЖЕННЯ ДАНИХ КОРИСТУВАЧА
