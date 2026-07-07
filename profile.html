@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BloodNexus - Профіль</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="history.back()">←</button>
+        <div class="logo">👤 Профіль</div>
+        <button class="edit-btn" onclick="editProfile()">✏️</button>
+    </div>
+
+    <div class="profile-full">
+        <div class="profile-avatar" id="profileAvatar">👤</div>
+        <div class="profile-name" id="profileName">Завантаження...</div>
+        <div class="profile-tag" id="profileTag">@username</div>
+        
+        <div class="profile-details">
+            <div class="detail-item">
+                <span class="detail-label">🪙 Баланс</span>
+                <span class="detail-value" id="profileBalance">0</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">⭐ Рівень</span>
+                <span class="detail-value" id="profileLevel">1</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">📦 Скінів</span>
+                <span class="detail-value" id="profileSkins">0</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">⚠️ Варнів</span>
+                <span class="detail-value" id="profileWarns">0</span>
+            </div>
+        </div>
+        
+        <div class="xp-bar">
+            <div class="xp-label">Досвід: <span id="xpCurrent">0</span> / <span id="xpMax">1000</span></div>
+            <div class="xp-track">
+                <div class="xp-fill" id="xpFill" style="width: 0%"></div>
+            </div>
+        </div>
+        
+        <button class="btn btn-donate" onclick="donate()">💰 Підтримати проєкт</button>
+    </div>
+
+    <!-- Нижня навігація -->
+    <div class="bottom-nav">
+        <div class="nav-item" onclick="navigate('home')">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Головна</span>
+        </div>
+        <div class="nav-item" onclick="navigate('shop')">
+            <span class="nav-icon">🛒</span>
+            <span class="nav-label">Магазин</span>
+        </div>
+        <div class="nav-item" onclick="navigate('inventory')">
+            <span class="nav-icon">📦</span>
+            <span class="nav-label">Інвентар</span>
+        </div>
+        <div class="nav-item active" onclick="navigate('profile')">
+            <span class="nav-icon">👤</span>
+            <span class="nav-label">Профіль</span>
+        </div>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
