@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BloodNexus - Магазин</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="history.back()">←</button>
+        <div class="logo">🛒 Магазин</div>
+        <span class="balance" id="shopBalance">🪙 0</span>
+    </div>
+
+    <!-- Фільтри -->
+    <div class="filters">
+        <button class="filter-btn active" onclick="filterSkins('all')">Все</button>
+        <button class="filter-btn" onclick="filterSkins('weapon')">🔫 Зброя</button>
+        <button class="filter-btn" onclick="filterSkins('knife')">🔪 Ножі</button>
+        <button class="filter-btn" onclick="filterSkins('perk')">🎯 Перки</button>
+    </div>
+
+    <!-- Пошук -->
+    <div class="search-bar">
+        <input type="text" placeholder="🔍 Пошук скінів..." id="searchInput" oninput="searchSkins()">
+    </div>
+
+    <!-- Сітка скінів -->
+    <div class="skin-grid" id="shopSkins">
+        <!-- Завантажується з API -->
+    </div>
+
+    <!-- Нижня навігація -->
+    <div class="bottom-nav">
+        <div class="nav-item" onclick="navigate('home')">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Головна</span>
+        </div>
+        <div class="nav-item active" onclick="navigate('shop')">
+            <span class="nav-icon">🛒</span>
+            <span class="nav-label">Магазин</span>
+        </div>
+        <div class="nav-item" onclick="navigate('inventory')">
+            <span class="nav-icon">📦</span>
+            <span class="nav-label">Інвентар</span>
+        </div>
+        <div class="nav-item" onclick="navigate('profile')">
+            <span class="nav-icon">👤</span>
+            <span class="nav-label">Профіль</span>
+        </div>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
