@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BloodNexus | Панель керування</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Шапка -->
+        <header>
+            <div class="header-content">
+                <h1>🛡️ BloodNexus</h1>
+                <div class="user-info" id="userInfo">
+                    <span id="userName">👤 Завантаження...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Вкладки -->
+        <nav class="tabs">
+            <button class="tab active" data-tab="users">👥 Учасники</button>
+            <button class="tab" data-tab="settings">⚙️ Налаштування</button>
+            <button class="tab" data-tab="stats">📊 Статистика</button>
+            <button class="tab" data-tab="games">🎮 Ігри</button>
+        </nav>
+
+        <!-- Вкладка: Учасники -->
+        <div id="tab-users" class="tab-content active">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Пошук учасника...">
+                <button onclick="searchUsers()">Знайти</button>
+            </div>
+            
+            <div class="user-list" id="userList">
+                <!-- Приклад користувачів (буде замінено реальними даними) -->
+                <div class="user-item" data-user-id="123456789">
+                    <div class="user-avatar">👤</div>
+                    <div class="user-info">
+                        <span class="user-name">Іван Петров</span>
+                        <span class="user-status online">🟢 Онлайн</span>
+                    </div>
+                    <div class="user-actions">
+                        <button class="btn-mute" onclick="muteUser(this)">🔇</button>
+                        <button class="btn-kick" onclick="kickUser(this)">👢</button>
+                        <button class="btn-ban" onclick="banUser(this)">🚫</button>
+                    </div>
+                </div>
+                <div class="user-item" data-user-id="987654321">
+                    <div class="user-avatar">👤</div>
+                    <div class="user-info">
+                        <span class="user-name">Марія Іваненко</span>
+                        <span class="user-status offline">⚪ Офлайн</span>
+                    </div>
+                    <div class="user-actions">
+                        <button class="btn-mute" onclick="muteUser(this)">🔇</button>
+                        <button class="btn-kick" onclick="kickUser(this)">👢</button>
+                        <button class="btn-ban" onclick="banUser(this)">🚫</button>
+                    </div>
+                </div>
+                <div class="user-item" data-user-id="555555555">
+                    <div class="user-avatar">👤</div>
+                    <div class="user-info">
+                        <span class="user-name">Олексій Коваль</span>
+                        <span class="user-status online">🟢 Онлайн</span>
+                    </div>
+                    <div class="user-actions">
+                        <button class="btn-mute" onclick="muteUser(this)">🔇</button>
+                        <button class="btn-kick" onclick="kickUser(this)">👢</button>
+                        <button class="btn-ban" onclick="banUser(this)">🚫</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка: Налаштування -->
+        <div id="tab-settings" class="tab-content">
+            <div class="settings-group">
+                <h3>🛡 Модерація</h3>
+                <div class="setting-item">
+                    <span>Антиспам</span>
+                    <label class="switch">
+                        <input type="checkbox" id="antiSpam" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <span>Повільний режим</span>
+                    <label class="switch">
+                        <input type="checkbox" id="slowMode">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <span>Затримка (сек)</span>
+                    <input type="number" id="slowDelay" value="5" min="1" max="60">
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <h3>💬 Повідомлення</h3>
+                <div class="setting-item">
+                    <span>Вітальне повідомлення</span>
+                    <input type="text" id="welcomeMessage" value="👋 Ласкаво просимо до чату!">
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <h3>🌐 Мова</h3>
+                <div class="setting-item">
+                    <span>Оберіть мову</span>
+                    <select id="language">
+                        <option value="uk">🇺🇦 Українська</option>
+                        <option value="ru">🇷🇺 Русский</option>
+                        <option value="en">🇬🇧 English</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn-save" onclick="saveSettings()">💾 Зберегти налаштування</button>
+        </div>
+
+        <!-- Вкладка: Статистика -->
+        <div id="tab-stats" class="tab-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-info">
+                        <h4>Учасників</h4>
+                        <p class="stat-number" id="statUsers">1,247</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💬</div>
+                    <div class="stat-info">
+                        <h4>Повідомлень/день</h4>
+                        <p class="stat-number" id="statMessages">3,456</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🚫</div>
+                    <div class="stat-info">
+                        <h4>Забанено</h4>
+                        <p class="stat-number" id="statBanned">23</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-info">
+                        <h4>Активність</h4>
+                        <p class="stat-number" id="statActive">92%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка: Ігри -->
+        <div id="tab-games" class="tab-content">
+            <div class="games-grid">
+                <div class="game-card" onclick="playGame('dice')">
+                    <div class="game-icon">🎲</div>
+                    <h3>Кістки</h3>
+                    <p>Киньте кубик з друзями!</p>
+                </div>
+                <div class="game-card" onclick="playGame('quiz')">
+                    <div class="game-icon">❓</div>
+                    <h3>Вікторина</h3>
+                    <p>Перевірте свої знання!</p>
+                </div>
+                <div class="game-card" onclick="playGame('roulette')">
+                    <div class="game-icon">🎰</div>
+                    <h3>Рулетка</h3>
+                    <p>Випадковий вибір!</p>
+                </div>
+                <div class="game-card" onclick="playGame('dart')">
+                    <div class="game-icon">🎯</div>
+                    <h3>Дартс</h3>
+                    <p>Влучте в ціль!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Футер -->
+        <footer>
+            <p>BloodNexus v2.0 | © 2024</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
